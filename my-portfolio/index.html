@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOLLARADDICT - Trading Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Animated Candlestick Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Header & Navigation -->
+    <header>
+        <nav class="navbar">
+            <a href="#" class="logo"><i class="fas fa-chart-line"></i> DOLLAR<span class="highlight">ADDICT</span></a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#markets">Markets</a></li>
+                <li><a href="#clocks">Sessions</a></li>
+                <li><a href="#tools">Tools</a></li>
+                <li><a href="#contact" class="nav-contact-btn">Contact Us</a></li>
+            </ul>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Master the Markets with <span class="highlight">DOLLARADDICT</span></h1>
+            <p>Real-time Forex data, global trading sessions, and direct expert connection.</p>
+            <div class="hero-btns">
+                <a href="https://www.tradingview.com" target="_blank" class="btn btn-blue"><i class="fas fa-external-link-alt"></i> Open TradingView</a>
+                <a href="mailto:dollaraddict254@gmail.com" class="btn btn-red"><i class="fas fa-envelope"></i> Email Us Directly</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-Time Forex Markets Section -->
+    <section id="markets" class="markets-section">
+        <h2>Live Forex Market Prices</h2>
+        <p class="section-subtitle">Real-time quotes updating dynamically</p>
+        <div class="table-container">
+            <table class="market-table">
+                <thead>
+                    <tr>
+                        <th>Pair</th>
+                        <th>Bid</th>
+                        <th>Ask</th>
+                        <th>24h Change</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody id="forex-table-body">
+                    <!-- Populated dynamically via JS -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Global Trading Clocks Section -->
+    <section id="clocks" class="clocks-section">
+        <h2>Global Trading Sessions</h2>
+        <div class="clock-grid">
+            <div class="clock-card">
+                <h3><i class="fas fa-globe-asia"></i> Asia (Tokyo)</h3>
+                <div id="clock-asia" class="live-clock">00:00:00</div>
+                <span class="session-status" id="status-asia">Checking...</span>
+            </div>
+            <div class="clock-card">
+                <h3><i class="fas fa-landmark"></i> London</h3>
+                <div id="clock-london" class="live-clock">00:00:00</div>
+                <span class="session-status" id="status-london">Checking...</span>
+            </div>
+            <div class="clock-card">
+                <h3><i class="fas fa-city"></i> New York</h3>
+                <div id="clock-newyork" class="live-clock">00:00:00</div>
+                <span class="session-status" id="status-newyork">Checking...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools & Shortcuts Section -->
+    <section id="tools" class="tools-section">
+        <h2>Quick Trading Shortcuts</h2>
+        <div class="tools-container">
+            <div class="tool-card">
+                <i class="fas fa-chart-bar tool-icon"></i>
+                <h3>TradingView Terminal</h3>
+                <p>Launch the industry-standard charting and analysis tool instantly.</p>
+                <a href="https://www.tradingview.com" target="_blank" class="btn btn-blue">Launch TradingView</a>
+            </div>
+            <div class="tool-card">
+                <i class="fas fa-paper-plane tool-icon"></i>
+                <h3>Direct Support</h3>
+                <p>Have questions or need trading strategies? Reach out directly to our team.</p>
+                <a href="mailto:dollaraddict254@gmail.com" class="btn btn-red">dollaraddict254@gmail.com</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2>Get in Touch</h2>
+        <p class="section-subtitle">Send an email directly or drop us a quick note</p>
+        <div class="contact-box">
+            <a href="mailto:dollaraddict254@gmail.com" class="email-display-btn">
+                <i class="fas fa-envelope-open-text"></i> dollaraddict254@gmail.com
+            </a>
+            <form id="contact-form">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message or Inquiry" rows="4" required></textarea>
+                <button type="submit" class="btn btn-blue">Send Inquiry</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 DOLLARADDICT. All rights reserved. Built for professional traders.</p>
+        <div class="social-icons">
+            <a href="mailto:dollaraddict254@gmail.com"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.tradingview.com" target="_blank"><i class="fas fa-chart-pie"></i></a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
