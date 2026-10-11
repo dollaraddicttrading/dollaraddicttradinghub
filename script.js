@@ -163,14 +163,14 @@ function updateClocks() {
         statusLondon.className = 'session-status status-closed';
     }
 
-    // New York Time (EST/EDT) (Existing + BUG FIX)
+    // New York Time (EST/EDT) (Existing)
     const optionsNY = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
     const timeNY = new Intl.DateTimeFormat('en-GB', optionsNY).format(now);
     nyEl.textContent = timeNY;
     
     const nyHour = parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }).format(now));
     
-    // FIX: Standardize to match the HTML ID 'status-newyork'
+    // Standardized to match the HTML ID 'status-newyork'
     const statusNY = document.getElementById('status-newyork');
     
     if (nyHour >= 8 && nyHour < 17) {
@@ -186,7 +186,7 @@ setInterval(updateClocks, 1000);
 updateClocks();
 
 /* =========================================
-   3. FORM & SOCIAL HANDLING (Existing)
+   3. FORM HANDLER (Existing)
    ========================================= */
 
 // Contact Form Handler (Existing)
@@ -194,7 +194,7 @@ const contactForm = document.getElementById('contact-form');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        alert('Thank you! Your inquiry has been dispatched to dollaraddict254@gmail.com.');
+        alert('Thank you! Your inquiry has been dispatched to contact@dollaraddicttrading.io.');
         contactForm.reset();
     });
 }
@@ -208,7 +208,7 @@ let deferredPrompt;
 const installPanel = document.getElementById('pwa-install-container');
 const installBtn = document.getElementById('pwa-install-btn');
 
-// A. Capture the native 'beforeinstallprompt' event (requiring Pillar 3 sw.js)
+// A. Capture the native 'beforeinstallprompt' event (requiring sw.js activation)
 window.addEventListener('beforeinstallprompt', (e) => {
     // Prevent the browser's automatic minimal install prompt (Chrome 76+)
     e.preventDefault();

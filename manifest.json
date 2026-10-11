@@ -1,17 +1,17 @@
 /* =========================================
    DOLLARADDICT PWA Manifest (manifest.json)
-   Integrated for: Mascable Icons & Cohesive Theme
+   Integrated for: Mascable Icons & Branded Cohesive Theme
    ========================================= */
 {
   "name": "DOLLARADDICT",
   "short_name": "DA",
-  "description": "DOLLARADDICT Forex Trading Hub: Automation, Sessions, Community.",
+  "description": "DOLLARADDICT Forex Trading Hub: Automation, Sessions, community.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   
   /* --- COHESIVE BRAND COLORS --- */
-  /* Updated to match the primary deep blue of your style.css (#0b1e32) */
+  /* Updated to match the primary deep blue defined in your style.css (#0b1e32) */
   "background_color": "#0b1e32", /* Color of the launch splash screen */
   "theme_color": "#0b1e32",      /* Color of the browser UI address bar */
   

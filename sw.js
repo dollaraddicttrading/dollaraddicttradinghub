@@ -1,5 +1,6 @@
 /* =========================================
    DOLLARADDICT Enhanced Service Worker (sw.js)
+   Integrated for: Speed, Offline Caching, and PWA Prompts.
    Strategy: Stale-While-Revalidate (Fast & Up-to-Date)
    ========================================= */
 
@@ -11,20 +12,20 @@ const CACHE_NAME = 'dollaraddict-trading-v1.1'; // Bump version if critical asse
 const APP_FILES = [
     './',
     './index.html',
-    './style.css',               // NEW: Essential for Tiktok/Suite look
-    './script.js',              // NEW: Essential for PWA/Clock/Suite function
+    './style.css',               // Essential for Tiktok/Suite look
+    './script.js',              // Essential for PWA/Clock/Suite function
     './manifest.json',           // Required for install prompt
     './icons/icon-192.png',      // Req. for Pillar 1/2
     './icons/icon-512.png',      // Req. for installation
 
-    // FontAwesome is external, so we cache it dynamically instead of pre-caching.
+    // Dynamic fonts are cached dynamically instead of pre-caching.
     // 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 
     // ... As you build ./tools/bots.html etc., add them here ...
 ];
 
 /* =========================================
-   Installation Lifecycle (Existing + Skip)
+   Installation Lifecycle (Caching Static Assets)
    ========================================= */
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -41,7 +42,7 @@ self.addEventListener('install', (event) => {
 });
 
 /* =========================================
-   Activation Lifecycle (Existing + Claim)
+   Activation Lifecycle (Cache Cleanup)
    ========================================= */
 self.addEventListener('activate', (event) => {
     event.waitUntil(
@@ -75,7 +76,7 @@ self.addEventListener('fetch', (event) => {
                 const fetchPromise = fetch(event.request).then((networkResponse) => {
                     // B. Background check: We must have a valid response to update the cache
                     if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                        // If network fails (e.g., truly offline), just return the network object
+                        // If network fails (e.g., truly offline), return the network object as truth
                         return networkResponse; 
                     }
                     
@@ -89,11 +90,10 @@ self.addEventListener('fetch', (event) => {
                 }).catch(() => {
                     // D. Network Failure: If fetch() completely fails (e.g. no connection)
                     // We already served the cachedResponse, so nothing else is needed here
-                    // If cachedResponse also didn't exist, this fails gracefully.
                 });
 
                 // The return value determines what is shown. 
-                // cachedResponse will be served immediately, and fetchPromise handles the background.
+                // cachedResponse will be served immediately, and fetchPromise handles the background freshness check.
                 return cachedResponse || fetchPromise;
             })
     );
