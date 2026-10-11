@@ -1,0 +1,35 @@
+/* =========================================
+   DOLLARADDICT PWA Manifest (manifest.json)
+   Integrated for: Mascable Icons & Cohesive Theme
+   ========================================= */
+{
+  "name": "DOLLARADDICT",
+  "short_name": "DA",
+  "description": "DOLLARADDICT Forex Trading Hub: Automation, Sessions, Community.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  
+  /* --- COHESIVE BRAND COLORS --- */
+  /* Updated to match the primary deep blue of your style.css (#0b1e32) */
+  "background_color": "#0b1e32", /* Color of the launch splash screen */
+  "theme_color": "#0b1e32",      /* Color of the browser UI address bar */
+  
+  /* --- OPTIMIZED ICONS LIST --- */
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      /* *** CRITICAL FIX: Enabling Adaptive Icons *** */
+      /* This allows Android/iOS to cleanly mask the icon, preventing a messy look. */
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

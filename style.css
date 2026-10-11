@@ -1,0 +1,737 @@
+/* =========================================
+   Reset & Base Styles (Existing)
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #050505;
+    color: #e2e8f0;
+    line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* *** CORE DA BRAND COLORS & ACCENTS *** */
+:root {
+    --bg-dark: #050505;       /* Main Body Background */
+    --bg-panel: #0d0d0d;      /* Card/Panel Background */
+    --da-blue: #0055ff;       /* Main Branded Blue (Pillar 2) */
+    --da-red: #ff2a2a;        /* Branded Red */
+    --da-cyan: #00f2ea;       /* TikTok Cyan Accent (Pillar 1) */
+    --da-pink: #ff0050;       /* TikTok Pink Accent (Pillar 1) */
+}
+
+/* =========================================
+   Background Animated Canvas (Existing)
+   ========================================= */
+#bg-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.15;
+}
+
+/* =========================================
+   Navbar (Existing)
+   ========================================= */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(5, 5, 5, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-bottom: 1px solid #111;
+}
+
+.navbar {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+/* logo highlight color from :root */
+.highlight {
+    color: var(--da-blue);
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #94a3b8;
+    transition: color 0.3s;
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: var(--da-blue);
+}
+
+.nav-contact-btn {
+    background: var(--da-blue);
+    color: #fff !important;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.nav-contact-btn:hover {
+    background: #0040cc !important;
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #fff;
+}
+
+/* =========================================
+   Hero Section (Enhanced with PWA Promo)
+   ========================================= */
+.hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1rem;
+    /* radial gradient using var for consistency */
+    background: radial-gradient(circle at center, rgba(0, 85, 255, 0.15) 0%, rgba(5, 5, 5, 1) 70%);
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: #94a3b8;
+    margin-bottom: 2.5rem;
+}
+
+.hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 5rem; /* Space before the new PWA panel */
+}
+
+/* *** PILLAR 1: Animated PWA Showcase Panel *** */
+.pwa-showcase-panel {
+    background: rgba(255, 255, 255, 0.03); /* Soft inner panel context */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.pwa-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    text-align: left; /* Local override within the centered hero */
+}
+
+/* Animation Container */
+.app-mockup-animation {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* NEW: The pulsing, glowing app icon animation */
+.animated-app-icon {
+    width: 130px;
+    height: 130px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 2;
+    
+    /* Animation definition */
+    animation: appGlowPulse 6s ease-in-out infinite, appBounce 8s ease-in-out infinite;
+}
+
+/* NEW: Keyframe Animations */
+@keyframes appBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); } /* Gentle lift */
+}
+
+@keyframes appGlowPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+    50% { box-shadow: 0 4px 25px rgba(0, 85, 255, 0.5); } /* Pulse branded blue */
+}
+
+.app-promo-text h3 {
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.app-promo-text p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.5rem;
+}
+
+/* =========================================
+   Buttons General (Existing)
+   ========================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-blue {
+    background: var(--da-blue);
+    color: #ffffff;
+}
+
+.btn-blue:hover {
+    background: #0040cc;
+    box-shadow: 0 0 15px rgba(0, 85, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-red {
+    background: var(--da-red);
+    color: #ffffff;
+}
+
+.btn-red:hover {
+    background: #cc0000;
+    box-shadow: 0 0 15px rgba(255, 42, 42, 0.5);
+    transform: translateY(-2px);
+}
+
+/* *** PILLAR 2: Install Button Styling *** */
+.btn-install-app {
+    background-color: var(--da-blue);
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px; /* Fully rounded for app feel */
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-install-app:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+}
+
+/* =========================================
+   Sections General (Existing)
+   ========================================= */
+section {
+    padding: 5rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 3rem;
+}
+
+/* =========================================
+   PILLAR 1: TikTok Integration Styles
+   ========================================= */
+.tiktok-section {
+    background-color: #000; /* Dark contrast compared to hero background */
+    padding: 80px 2rem;
+    color: #fff;
+    border-top: 1px solid #111;
+    border-bottom: 1px solid #111;
+}
+
+.tiktok-section .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.tiktok-logo-lg {
+    font-size: 5rem;
+    color: var(--da-cyan); /* TikTok Secondary Accent */
+    flex-shrink: 0;
+}
+
+.tiktok-section h3 {
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+.tiktok-section p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* TikTok Handle uses main Pink accent */
+.tiktok-handle {
+    color: var(--da-pink);
+    font-weight: bold;
+}
+
+/* NEW: Tiktok Call-to-Action Button */
+.btn-tiktok {
+    background-color: transparent;
+    color: #fff;
+    border: 2px solid var(--da-pink);
+    border-radius: 30px;
+    padding: 12px 30px;
+    white-space: nowrap; /* Prevent breaking on mobile */
+    transition: all 0.3s ease;
+}
+
+.btn-tiktok:hover {
+    background-color: var(--da-pink);
+    color: #000; /* High contrast on hover */
+    box-shadow: 3px 3px 0px var(--da-cyan); /* Specific TikTok offset shadow */
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   PILLAR 3: DA Trading Suite Showcase
+   ========================================= */
+.tools-suite-section {
+    background-color: var(--bg-dark);
+    padding: 100px 2rem;
+    color: #fff;
+}
+
+/* NEW: Grid for displaying tools as professional cards */
+.suite-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+}
+
+.tools-suite-section .tool-card {
+    background-color: var(--bg-panel);
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 50px 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default; /* Not a direct link, the button is the link */
+}
+
+/* Hover effect unifies the existing design lift */
+.tools-suite-section .tool-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--da-blue);
+    background-color: rgba(255, 255, 255, 0.05); /* Slight brighten */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Special Icons for Suite (Robot, Chart, Eye) */
+.tool-icon-suite {
+    font-size: 3.5rem;
+    color: var(--da-blue);
+    margin-bottom: 25px;
+    display: block;
+}
+
+.tools-suite-section .tool-card h4 {
+    margin-bottom: 0.75rem;
+    color: #ffffff;
+    font-size: 1.5rem;
+}
+
+.tools-suite-section .tool-card p {
+    color: #94a3b8;
+    margin-bottom: 2.5rem;
+    font-size: 1rem;
+}
+
+/* NEW: Specific button styling for Tools Suite */
+.btn-suite-cta {
+    background-color: transparent;
+    color: #fff;
+    border: 2px solid var(--da-blue);
+    padding: 10px 25px;
+    font-weight: bold;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+.btn-suite-cta:hover {
+    background-color: var(--da-blue);
+    color: #0b1e32; /* Contrast on hover */
+    text-decoration: none;
+}
+
+/* =========================================
+   PILLAR 4: Economic Calendar Section
+   ========================================= */
+.calendar-section {
+    padding: 100px 2rem;
+    background-color: var(--bg-panel); /* Dark background required for dark widget context */
+    color: #fff;
+    border-top: 1px solid #1a1a1a;
+}
+
+/* Optimizing TradingView Styling context */
+.tradingview-widget-container__widget iframe {
+    border-radius: 8px; /* Professional rounded iframe */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Soft shadow depth */
+}
+
+/* =========================================
+   Markets Table Section (Existing)
+   ========================================= */
+.markets-section {
+    background-color: var(--bg-dark); /* Ensure table is on dark ground */
+}
+
+.table-container {
+    background: var(--bg-panel);
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    overflow-x: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.market-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.market-table th, .market-table td {
+    padding: 1rem 1.5rem;
+}
+
+.market-table th {
+    background: #141414;
+    color: var(--da-blue);
+    font-weight: 600;
+    border-bottom: 1px solid #222;
+}
+
+.market-table tr {
+    border-bottom: 1px solid #111;
+    transition: background 0.2s;
+}
+
+.market-table tr:hover {
+    background: #121212;
+}
+
+.trend-up {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.trend-down {
+    color: var(--da-red);
+    font-weight: bold;
+}
+
+/* =========================================
+   Clocks Section (Existing)
+   ========================================= */
+.clocks-section {
+    background-color: var(--bg-panel); /* Card list ground */
+}
+
+.clock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.clock-card {
+    background: var(--bg-panel);
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.clock-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--da-blue);
+}
+
+.clock-card h3 {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.live-clock {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    font-family: monospace;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(0, 85, 255, 0.4);
+}
+
+.session-status {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.status-open {
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+    border: 1px solid #00ff88;
+}
+
+.status-closed {
+    background: rgba(255, 42, 42, 0.15);
+    color: var(--da-red);
+    border: 1px solid var(--da-red);
+}
+
+/* =========================================
+   LEGACY Tools Section (Existing Quick Tools)
+   ========================================= */
+.tools-section {
+    background-color: var(--bg-dark); /* Standardize background */
+}
+
+.tools-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+/* Keep original quick tools styled separately if they are to remain */
+.tool-card-legacy {
+    background: var(--bg-panel);
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.tool-card-legacy:hover {
+    transform: translateY(-5px);
+    border-color: var(--da-blue);
+}
+
+.tool-icon {
+    font-size: 2.5rem;
+    color: var(--da-blue);
+    margin-bottom: 1rem;
+}
+
+.tool-card-legacy h3 {
+    margin-bottom: 0.75rem;
+    color: #ffffff;
+}
+
+.tool-card-legacy p {
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+}
+
+/* =========================================
+   Contact Section (Existing)
+   ========================================= */
+.contact-section {
+    background-color: var(--bg-panel); /* Card list ground */
+}
+
+.contact-box {
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--bg-panel);
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 2.5rem;
+    text-align: center;
+}
+
+.email-display-btn {
+    display: inline-block;
+    background: rgba(0, 85, 255, 0.1);
+    border: 1px solid var(--da-blue);
+    color: var(--da-blue);
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: background 0.3s;
+}
+
+.email-display-btn:hover {
+    background: rgba(0, 85, 255, 0.2);
+}
+
+#contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+#contact-form input,
+#contact-form textarea {
+    width: 100%;
+    padding: 1rem;
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 5px;
+    color: #e2e8f0;
+    font-size: 1rem;
+}
+
+#contact-form input:focus,
+#contact-form textarea:focus {
+    outline: none;
+    border-color: var(--da-blue);
+}
+
+/* =========================================
+   Footer (Existing)
+   ========================================= */
+footer {
+    background: #030303;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid #111;
+    color: #64748b;
+}
+
+.social-icons {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.social-icons a {
+    color: #94a3b8;
+    font-size: 1.25rem;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: var(--da-blue);
+}
+
+/* =========================================
+   Responsive Media Queries (Existing)
+   ========================================= */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #050505;
+        padding: 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid #111;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+}
+
+/* *** NEW: Enhanced Mobile Breakpoints for New Sections *** */
+@media (max-width: 991px) {
+    /* Stack PWA Content */
+    .pwa-content-wrapper {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    /* Stack TikTok Content */
+    .tiktok-section .container {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .tiktok-logo-lg {
+        font-size: 4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Adjust Tools Grid on small phones */
+    .suite-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tool-icon-suite {
+        font-size: 3rem;
+    }
+}
