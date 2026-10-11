@@ -1,37 +1,20 @@
-# DOLLARADDICT — updated website/app
+# DOLLARADDICT website/app update
 
-## What's included
-- TradingView chart dashboard for XAUUSD, EUR/USD, GBP/USD and BTC/USD with symbol/timeframe controls.
-- Trading journal with add/edit/delete, date/instrument/result filters, and browser-local persistence.
-- Statistics computed from recorded trades: win rate, net and average result, profit factor, equity curve, daily performance, and instrument/strategy breakdown.
-- Contact form addressed to `dollaraddict254@gmail.com`, using FormSubmit AJAX with a mail-draft fallback.
-- Fixed `mailto:` links, responsive styling, valid PWA manifest, generated app icons, and a safer service worker cache.
+## Included
+- Responsive dark/blue DOLLARADDICT landing page and PWA manifest/icons.
+- TradingView chart selector for XAUUSD, EUR/USD, GBP/USD and BTC/USD.
+- Browser-local trading journal with add/edit/delete, filters, CSV export and computed statistics/charts.
+- Indicative Tokyo, London and New York session clocks.
+- Contact form using FormSubmit AJAX with a `mailto:` fallback. FormSubmit may require a one-time recipient verification.
+- CRT Gold robot product page at **KSh 2,000**.
+- Backend starter in `backend/` for Daraja STK Push, server-side payment verification, D1 order/license records and private R2 download.
+- Recreated `tools/bots.html`, `tools/strategies.html`, and `tools/indicators.html` because those source pages were not present in the received messages.
 
-## Email setup (required for direct form delivery)
-The contact form uses FormSubmit's hosted endpoint, so this static project does not need a private API key.
-1. Deploy the site to its final HTTPS URL (GitHub Pages, Netlify, or another HTTPS host).
-2. Submit a test message from the contact form.
-3. Check `dollaraddict254@gmail.com` for FormSubmit's activation/verification email and approve it. The service may not deliver form submissions until the recipient is verified.
-4. Submit another test and confirm delivery. Check spam/junk too.
-5. If the service is blocked or unavailable, the form opens a pre-addressed email draft as a fallback. This fallback depends on the visitor's email app being configured.
+## Quick local preview
+Open `index.html` in a browser to preview most frontend features. PWA installation and service-worker behavior require a secure HTTPS origin (or localhost). The M-PESA checkout intentionally remains disabled until the backend is deployed and `da-config.js` contains the Worker URL.
 
-The site cannot securely guarantee server-to-inbox email delivery without a backend or a third-party form provider. Do not put Gmail passwords, SMTP passwords, or private API keys in `script.js`.
+## Publish the website
+Upload the contents of this folder to the root of your GitHub repository so `index.html`, `style.css`, `script.js`, `manifest.json`, `sw.js`, `da-config.js`, and `icons/` are at repository root. Enable GitHub Pages under **Settings → Pages**. Do not upload any Daraja secrets or the `.ex5` binary to the public repo.
 
-## Trading journal data
-- Journal entries are saved in the browser's `localStorage` on the current device/browser.
-- They do not automatically sync across devices and may be lost if browser site data is cleared.
-- Results are manually entered in account currency. The app does not connect to a broker or calculate pip/contract values.
-- The live chart is hosted by TradingView and requires internet access. Quotes and market availability depend on TradingView and its data providers.
-
-## Deploying on GitHub Pages
-1. Extract the ZIP.
-2. Upload the contents of the `DOLLAR UPDATE` folder to the root of your GitHub repository (so `index.html` is at repository root).
-3. Commit and push.
-4. In GitHub, open **Settings → Pages**, select the desired branch and root folder, and save.
-5. Wait for the HTTPS deployment to finish, then open the site and test the contact form, charts, journal, and app installation.
-6. If an older version persists, close the app and clear the site's cached data/service worker, then reload.
-
-## Notes
-- The project is static HTML/CSS/JavaScript. No backend or cloud sync is included.
-- The FormSubmit recipient must be verified once before reliable direct delivery.
-- External TradingView charts and contact form submission require a connection.
+## Important
+The frontend is not connected to a broker. Journal entries remain on the current browser/device. TradingView and FormSubmit need internet access. The payment backend requires separate deployment and configuration; see `backend/README.md`. This ZIP does not include a compiled robot binary, real payment credentials, or an already activated Safaricom merchant setup. No trading outcome is guaranteed.

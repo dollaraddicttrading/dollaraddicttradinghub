@@ -1,285 +1,69 @@
-/* DollarAddict app interactions, trading journal, statistics and contact */
 'use strict';
-
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 const safeJSON = (value, fallback) => { try { return JSON.parse(value) ?? fallback; } catch { return fallback; } };
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // Mobile navigation
-const mobileMenu = $('mobile-menu');
-const navLinks = document.querySelector('.nav-links');
+const mobileMenu = $('mobile-menu'), navLinks = document.querySelector('.nav-links');
 if (mobileMenu && navLinks) {
-  mobileMenu.addEventListener('click', () => {
-    const expanded = navLinks.classList.toggle('active');
-    mobileMenu.setAttribute('aria-expanded', String(expanded));
-  });
-  document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => {
-    navLinks.classList.remove('active');
-    mobileMenu.setAttribute('aria-expanded', 'false');
-  }));
+  mobileMenu.addEventListener('click', () => { const open = navLinks.classList.toggle('active'); mobileMenu.setAttribute('aria-expanded', String(open)); });
+  document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => { navLinks.classList.remove('active'); mobileMenu.setAttribute('aria-expanded','false'); }));
 }
+$('year').textContent = new Date().getFullYear();
 
-// Decorative candlestick canvas
+// Animated background
 const canvas = $('bg-canvas');
-if (canvas && canvas.getContext) {
-  const ctx = canvas.getContext('2d');
-  let candles = [];
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    candles = Array.from({length: Math.min(35, Math.floor(window.innerWidth / 45))}, (_, i) => ({
-      x: i * 55 + Math.random() * 35, y: Math.random() * canvas.height,
-      h: 20 + Math.random() * 60, green: Math.random() > .45, speed: .2 + Math.random() * .4
-    }));
-  }
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    candles.forEach(c => {
-      c.x -= c.speed;
-      if (c.x < -20) { c.x = canvas.width + 20; c.y = Math.random() * canvas.height; c.green = Math.random() > .45; }
-      ctx.strokeStyle = c.green ? '#00ff88' : '#ff2a2a';
-      ctx.fillStyle = c.green ? 'rgba(0,255,136,.24)' : 'rgba(255,42,42,.24)';
-      ctx.beginPath(); ctx.moveTo(c.x, c.y - c.h / 2 - 10); ctx.lineTo(c.x, c.y + c.h / 2 + 10); ctx.stroke();
-      ctx.fillRect(c.x - 4, c.y - c.h / 2, 8, c.h);
-    });
-    requestAnimationFrame(animate);
-  }
-  resizeCanvas(); window.addEventListener('resize', resizeCanvas); animate();
+if (canvas?.getContext) {
+  const ctx = canvas.getContext('2d'); let candles = [], raf;
+  function resizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; candles = Array.from({length:Math.min(35,Math.floor(innerWidth/45))},(_,i)=>({x:i*55+Math.random()*35,y:Math.random()*canvas.height,h:20+Math.random()*60,green:Math.random()>.45,speed:.2+Math.random()*.4})); }
+  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); candles.forEach(c=>{c.x-=c.speed;if(c.x < -20){c.x=canvas.width+20;c.y=Math.random()*canvas.height;c.green=Math.random()>.45;}ctx.strokeStyle=c.green?'#00ff88':'#ff2a2a';ctx.fillStyle=c.green?'rgba(0,255,136,.24)':'rgba(255,42,42,.24)';ctx.beginPath();ctx.moveTo(c.x,c.y-c.h/2-10);ctx.lineTo(c.x,c.y+c.h/2+10);ctx.stroke();ctx.fillRect(c.x-4,c.y-c.h/2,8,c.h);});raf=requestAnimationFrame(animate); }
+  resizeCanvas(); addEventListener('resize',resizeCanvas); animate(); addEventListener('pagehide',()=>cancelAnimationFrame(raf));
 }
 
-// Live chart selector: TradingView hosts the actual chart and data.
+// TradingView chart selector and watchlist
 function updateChart() {
-  const symbol = $('chart-symbol')?.value || 'OANDA:XAUUSD';
-  const interval = $('chart-timeframe')?.value || '60';
-  const frame = $('tradingview-chart');
-  if (frame) {
-    const params = new URLSearchParams({
-      frameElementId: 'tradingview_chart', symbol, interval, hidesidetoolbar: '0',
-      symboledit: '1', saveimage: '0', toolbarbg: '0b0b0b', theme: 'dark',
-      style: '1', timezone: 'Etc/UTC', withdateranges: '1', hideideas: '1'
-    });
-    frame.src = 'https://www.tradingview.com/widgetembed/?' + params.toString();
-  }
+  const symbol=$('chart-symbol')?.value || 'OANDA:XAUUSD', interval=$('chart-timeframe')?.value || '60', frame=$('tradingview-chart');
+  if(frame){const params=new URLSearchParams({symbol,interval,theme:'dark',style:'1',timezone:'Etc/UTC',withdateranges:'1',hideideas:'1',symboledit:'1',saveimage:'0'});frame.src='https://www.tradingview.com/widgetembed/?'+params.toString();}
+  const full=$('open-full-chart'); if(full) full.href='https://www.tradingview.com/chart/?symbol='+encodeURIComponent(symbol);
 }
-$('chart-symbol')?.addEventListener('change', updateChart);
-$('chart-timeframe')?.addEventListener('change', updateChart);
+$('chart-symbol')?.addEventListener('change',updateChart); $('chart-timeframe')?.addEventListener('change',updateChart);
+const tableBody=$('forex-table-body');
+if(tableBody){const watch=[['Gold (XAUUSD)','OANDA:XAUUSD'],['EUR/USD','FX:EURUSD'],['GBP/USD','FX:GBPUSD'],['Bitcoin (BTC/USD)','COINBASE:BTCUSD']];tableBody.innerHTML=watch.map(([name,symbol])=>`<tr><td><strong>${name}</strong></td><td>TradingView provider</td><td><a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(symbol)}" target="_blank" rel="noopener noreferrer">Open chart ↗</a></td></tr>`).join('');}
 
-// The old quote table used random simulated values. Do not label synthetic prices as live.
-// TradingView's embedded chart above provides market data; this table links users to it.
-const tableBody = $('forex-table-body');
-if (tableBody) {
-  const watchlist = [
-    ['Gold (XAUUSD)', 'OANDA:XAUUSD'], ['EUR/USD', 'FX:EURUSD'],
-    ['GBP/USD', 'FX:GBPUSD'], ['BTC/USD', 'COINBASE:BTCUSD']
-  ];
-  tableBody.innerHTML = watchlist.map(([name, symbol]) =>
-    `<tr><td><strong>${name}</strong></td><td colspan="3">Open chart for current provider data</td><td><a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(symbol)}" target="_blank" rel="noopener noreferrer">View ↗</a></td></tr>`
-  ).join('');
-  const heading = tableBody.closest('section')?.querySelector('.section-subtitle');
-  if (heading) heading.textContent = 'Select View to open the instrument chart. Live quotes are supplied by TradingView, not simulated here.';
-}
+// World clocks (session status is indicative, not a broker-hours guarantee)
+function updateClocks(){const sessions=[{key:'asia',zone:'Asia/Tokyo',open:9,close:18},{key:'london',zone:'Europe/London',open:8,close:17},{key:'newyork',zone:'America/New_York',open:8,close:17}];sessions.forEach(s=>{const clock=$('clock-'+s.key),status=$('status-'+s.key);if(!clock||!status)return;const now=new Date();clock.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:s.zone,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);const parts=new Intl.DateTimeFormat('en-US',{timeZone:s.zone,hour:'numeric',hourCycle:'h23',weekday:'short'}).formatToParts(now);const hour=Number(parts.find(p=>p.type==='hour')?.value||0),day=parts.find(p=>p.type==='weekday')?.value;const open=hour>=s.open&&hour<s.close&&day!=='Sat'&&day!=='Sun';status.textContent=open?'OPEN (indicative)':'CLOSED (indicative)';status.className='session-status '+(open?'status-open':'status-closed');});}
+updateClocks();setInterval(updateClocks,1000);
 
-// World clocks with timezone-aware DST handling.
-function updateClocks() {
-  const sessions = [
-    {key:'asia', zone:'Asia/Tokyo', open:9, close:18},
-    {key:'london', zone:'Europe/London', open:8, close:17},
-    {key:'newyork', zone:'America/New_York', open:8, close:17}
-  ];
-  sessions.forEach(s => {
-    const clock = $('clock-' + s.key), status = $('status-' + s.key);
-    if (!clock || !status) return;
-    const now = new Date();
-    clock.textContent = new Intl.DateTimeFormat('en-GB', {
-      timeZone:s.zone, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
-    }).format(now);
-    const hour = Number(new Intl.DateTimeFormat('en-GB', {timeZone:s.zone, hour:'2-digit', hourCycle:'h23'}).format(now));
-    const isOpen = hour >= s.open && hour < s.close && now.getUTCDay() !== 0 && now.getUTCDay() !== 6;
-    status.textContent = isOpen ? 'OPEN (indicative)' : 'CLOSED (indicative)';
-    status.className = 'session-status ' + (isOpen ? 'status-open' : 'status-closed');
-  });
-}
-updateClocks(); setInterval(updateClocks, 1000);
+// PWA install and service worker
+let deferredInstallPrompt=null;const installPanel=$('pwa-install-container'),installBtn=$('pwa-install-btn');
+addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;if(installPanel)installPanel.style.display='block';});
+installBtn?.addEventListener('click',async()=>{if(!deferredInstallPrompt){alert('If installation is available, open your browser menu and choose Install app or Add to Home Screen.');return;}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(installPanel)installPanel.style.display='none';});
+addEventListener('appinstalled',()=>{if(installPanel)installPanel.style.display='none';});
+if('serviceWorker'in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('Service worker registration failed',e)));
 
-// PWA install flow (safe if the optional panel is absent).
-let deferredInstallPrompt = null;
-const installPanel = $('pwa-install-container'), installBtn = $('pwa-install-btn');
-window.addEventListener('beforeinstallprompt', event => {
-  event.preventDefault(); deferredInstallPrompt = event;
-  if (installPanel) installPanel.style.display = 'block';
-});
-if (installBtn) installBtn.addEventListener('click', async () => {
-  if (!deferredInstallPrompt) {
-    alert('If installation is available, use your browser menu and choose Install app or Add to Home Screen.');
-    return;
-  }
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  if (installPanel) installPanel.style.display = 'none';
-});
-window.addEventListener('appinstalled', () => { if (installPanel) installPanel.style.display = 'none'; });
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker registration failed', err)));
-}
+// Browser-local trading journal
+const STORAGE_KEY='dollaraddict.trades.v2';let trades=safeJSON(localStorage.getItem(STORAGE_KEY),[]);if(!Array.isArray(trades))trades=[];
+const nowDate=new Date();const todayStr=`${nowDate.getFullYear()}-${String(nowDate.getMonth()+1).padStart(2,'0')}-${String(nowDate.getDate()).padStart(2,'0')}`;if($('trade-date'))$('trade-date').value=todayStr;
+const tradeForm=$('trade-form'),formStatus=$('trade-form-status');const fmt=n=>Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});const outcome=t=>Number(t.result)>0?'win':Number(t.result)<0?'loss':'breakeven';
+function persistTrades(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(trades));return true;}catch{if(formStatus)formStatus.textContent='Could not save. Browser storage may be full or disabled.';return false;}}
+function getFilteredTrades(){const from=$('filter-from')?.value||'',to=$('filter-to')?.value||'',instrument=$('filter-instrument')?.value||'',result=$('filter-result')?.value||'';return trades.filter(t=>(!from||t.date>=from)&&(!to||t.date<=to)&&(!instrument||t.instrument===instrument)&&(!result||outcome(t)===result)).sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0));}
+function renderJournal(){const body=$('journal-table-body');if(!body)return;const rows=getFilteredTrades();body.innerHTML=rows.map(t=>`<tr><td>${escapeHTML(t.date)}</td><td>${escapeHTML(t.instrument)}</td><td>${escapeHTML(t.direction)}</td><td>${fmt(t.entry)}</td><td>${fmt(t.exit)}</td><td>${fmt(t.lots)}</td><td class="${Number(t.result)>0?'trend-up':Number(t.result)<0?'trend-down':''}">${fmt(t.result)}</td><td>${escapeHTML(t.strategy||'—')}${t.notes?`<div class="trade-note">${escapeHTML(t.notes)}</div>`:''}</td><td class="action-cell"><button class="mini-btn" data-edit="${escapeHTML(t.id)}" type="button">Edit</button> <button class="mini-btn danger" data-delete="${escapeHTML(t.id)}" type="button">Delete</button></td></tr>`).join('');if($('journal-empty'))$('journal-empty').hidden=rows.length>0;renderStatistics(rows);}
+tradeForm?.addEventListener('submit',event=>{event.preventDefault();const id=$('trade-id').value,existing=trades.find(t=>t.id===id);const trade={id:id||(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2)),createdAt:existing?.createdAt||Date.now(),date:$('trade-date').value,instrument:$('trade-instrument').value,direction:$('trade-direction').value,entry:Number($('trade-entry').value),exit:Number($('trade-exit').value),lots:Number($('trade-lots').value),sl:$('trade-sl').value?Number($('trade-sl').value):null,tp:$('trade-tp').value?Number($('trade-tp').value):null,result:Number($('trade-result').value),strategy:$('trade-strategy').value.trim(),notes:$('trade-notes').value.trim()};
+  if(!trade.date||!Number.isFinite(trade.entry)||!Number.isFinite(trade.exit)||!Number.isFinite(trade.result)||trade.entry<0||trade.exit<0||trade.lots<=0){formStatus.textContent='Check the date, prices, lot size and result.';return;}if(existing)trades=trades.map(t=>t.id===id?trade:t);else trades.push(trade);if(persistTrades()){tradeForm.reset();$('trade-id').value='';$('trade-lots').value='0.01';$('trade-date').value=trade.date;$('trade-submit').textContent='Save Trade';$('trade-cancel').hidden=true;formStatus.textContent=existing?'Trade updated.':'Trade saved on this device.';renderJournal();}});
+function cancelEdit(){tradeForm.reset();$('trade-id').value='';$('trade-lots').value='0.01';$('trade-date').value=todayStr;$('trade-submit').textContent='Save Trade';$('trade-cancel').hidden=true;formStatus.textContent='';}
+$('trade-cancel')?.addEventListener('click',cancelEdit);
+$('journal-table-body')?.addEventListener('click',event=>{const edit=event.target.closest('[data-edit]'),del=event.target.closest('[data-delete]');if(edit){const t=trades.find(x=>x.id===edit.dataset.edit);if(!t)return;$('trade-id').value=t.id;$('trade-date').value=t.date;$('trade-instrument').value=t.instrument;$('trade-direction').value=t.direction;$('trade-entry').value=t.entry;$('trade-exit').value=t.exit;$('trade-lots').value=t.lots;$('trade-sl').value=t.sl??'';$('trade-tp').value=t.tp??'';$('trade-result').value=t.result;$('trade-strategy').value=t.strategy||'';$('trade-notes').value=t.notes||'';$('trade-submit').textContent='Update Trade';$('trade-cancel').hidden=false;tradeForm.scrollIntoView({behavior:'smooth',block:'start'});}if(del){const t=trades.find(x=>x.id===del.dataset.delete);if(t&&confirm(`Delete the ${t.instrument} trade from ${t.date}? This cannot be undone.`)){trades=trades.filter(x=>x.id!==t.id);persistTrades();renderJournal();}}});
+['filter-from','filter-to','filter-instrument','filter-result'].forEach(id=>$(id)?.addEventListener('change',renderJournal));$('clear-filters')?.addEventListener('click',()=>{['filter-from','filter-to','filter-instrument','filter-result'].forEach(id=>{if($(id))$(id).value='';});renderJournal();});
+function drawChart(id,values,labels){const el=$(id);if(!el)return;const width=Math.max(280,el.getBoundingClientRect().width||500),height=220,dpr=devicePixelRatio||1;el.width=width*dpr;el.height=height*dpr;el.style.height=height+'px';const c=el.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,width,height);const pad={l:45,r:12,t:18,b:32},pw=width-pad.l-pad.r,ph=height-pad.t-pad.b,nums=values.length?values:[0],min=Math.min(0,...nums),max=Math.max(0,...nums),range=max-min||1;c.font='11px sans-serif';c.strokeStyle='#293342';c.fillStyle='#9ca9bb';for(let i=0;i<5;i++){const y=pad.t+ph*i/4;c.beginPath();c.moveTo(pad.l,y);c.lineTo(width-pad.r,y);c.stroke();c.fillText(fmt(max-range*i/4),2,y+4);}if(!values.length){c.fillText('Record trades to display performance',pad.l+8,pad.t+ph/2);return;}const x=i=>pad.l+(values.length===1?pw/2:i*pw/(values.length-1)),y=v=>pad.t+(max-v)/range*ph;c.strokeStyle='#00d7ff';c.lineWidth=2;c.beginPath();values.forEach((v,i)=>i===0?c.moveTo(x(i),y(v)):c.lineTo(x(i),y(v)));c.stroke();c.fillStyle='#d7e4f5';[0,Math.floor((labels.length-1)/2),labels.length-1].filter((v,i,a)=>a.indexOf(v)===i).forEach(i=>c.fillText(String(labels[i]||'').slice(5),x(i)-14,height-9));}
+function renderStatistics(rows){const total=rows.length,wins=rows.filter(t=>Number(t.result)>0).length,losses=rows.filter(t=>Number(t.result)<0).length,net=rows.reduce((s,t)=>s+Number(t.result||0),0),avg=total?net/total:0,grossWin=rows.reduce((s,t)=>s+Math.max(0,Number(t.result||0)),0),grossLoss=Math.abs(rows.reduce((s,t)=>s+Math.min(0,Number(t.result||0)),0));$('stat-total').textContent=total;$('stat-wins-losses').textContent=`${wins} / ${losses}`;$('stat-win-rate').textContent=(total?wins/total*100:0).toFixed(1)+'%';$('stat-net').textContent=fmt(net);$('stat-net').className=net>0?'trend-up':net<0?'trend-down':'';$('stat-average').textContent=fmt(avg);$('stat-profit-factor').textContent=grossLoss?(grossWin/grossLoss).toFixed(2):(grossWin?'∞':'—');let cumulative=0;const ordered=[...rows].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0));drawChart('equity-chart',ordered.map(t=>cumulative+=Number(t.result||0)),ordered.map(t=>t.date));const dailyMap={};rows.forEach(t=>dailyMap[t.date]=(dailyMap[t.date]||0)+Number(t.result||0));const daily=Object.keys(dailyMap).sort().map(date=>({date,result:dailyMap[date]}));drawChart('daily-chart',daily.map(d=>d.result),daily.map(d=>d.date));const groups=new Map();rows.forEach(t=>[['Instrument',t.instrument||'Other'],['Strategy',t.strategy||'Unspecified']].forEach(([type,key])=>{const name=type+': '+key;if(!groups.has(name))groups.set(name,{name,count:0,wins:0,net:0});const g=groups.get(name);g.count++;g.wins+=Number(t.result)>0?1:0;g.net+=Number(t.result||0);}));$('breakdown-table-body').innerHTML=[...groups.values()].map(g=>`<tr><td>${escapeHTML(g.name)}</td><td>${g.count}</td><td>${g.wins}</td><td class="${g.net>0?'trend-up':g.net<0?'trend-down':''}">${fmt(g.net)}</td><td>${(g.wins/g.count*100).toFixed(1)}%</td></tr>`).join('');}
+$('export-trades')?.addEventListener('click',()=>{const rows=getFilteredTrades();if(!rows.length){alert('There are no trades to export in this view.');return;}const fields=['date','instrument','direction','entry','exit','lots','sl','tp','result','strategy','notes'];const csv=[fields.join(','),...rows.map(t=>fields.map(f=>'"'+String(t[f]??'').replace(/"/g,'""')+'"').join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download='dollaraddict-trading-journal.csv';a.click();URL.revokeObjectURL(url);});
+renderJournal();addEventListener('resize',()=>renderStatistics(getFilteredTrades()));
 
-// Trading journal: browser-local storage, never synced to a server.
-const STORAGE_KEY = 'dollaraddict.trades.v1';
-let trades = safeJSON(localStorage.getItem(STORAGE_KEY), []);
-if (!Array.isArray(trades)) trades = [];
-const today = new Date();
-if ($('trade-date')) $('trade-date').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-const tradeForm = $('trade-form');
-const formStatus = $('trade-form-status');
-const fmt = n => Number(n || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-const outcome = trade => Number(trade.result) > 0 ? 'win' : Number(trade.result) < 0 ? 'loss' : 'breakeven';
-function persistTrades() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(trades)); return true; }
-  catch { if (formStatus) formStatus.textContent = 'Could not save. Browser storage may be full or disabled.'; return false; }
-}
-function getFilteredTrades() {
-  const from = $('filter-from')?.value || '', to = $('filter-to')?.value || '';
-  const instrument = $('filter-instrument')?.value || '', result = $('filter-result')?.value || '';
-  return trades.filter(t => (!from || t.date >= from) && (!to || t.date <= to) &&
-    (!instrument || t.instrument === instrument) && (!result || outcome(t) === result))
-    .sort((a,b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt);
-}
-function renderJournal() {
-  const body = $('journal-table-body'); if (!body) return;
-  const rows = getFilteredTrades();
-  body.innerHTML = rows.map(t => `<tr>
-    <td>${escapeHTML(t.date)}</td><td>${escapeHTML(t.instrument)}</td><td>${escapeHTML(t.direction)}</td>
-    <td>${fmt(t.entry)}</td><td>${fmt(t.exit)}</td><td>${fmt(t.lots)}</td>
-    <td class="${Number(t.result)>0?'trend-up':Number(t.result)<0?'trend-down':''}">${fmt(t.result)}</td>
-    <td>${escapeHTML(t.strategy || '—')}${t.notes ? `<div class="trade-note">${escapeHTML(t.notes)}</div>` : ''}</td>
-    <td class="action-cell"><button class="mini-btn" data-edit="${t.id}" type="button">Edit</button> <button class="mini-btn danger" data-delete="${t.id}" type="button">Delete</button></td>
-  </tr>`).join('');
-  if ($('journal-empty')) $('journal-empty').hidden = rows.length > 0;
-  renderStatistics(rows);
-}
-function escapeHTML(value) {
-  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
-tradeForm?.addEventListener('submit', event => {
-  event.preventDefault();
-  const id = $('trade-id').value;
-  const existing = trades.find(t => t.id === id);
-  const trade = {
-    id: id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)),
-    createdAt: existing?.createdAt || Date.now(),
-    date: $('trade-date').value, instrument: $('trade-instrument').value,
-    direction: $('trade-direction').value, entry: Number($('trade-entry').value),
-    exit: Number($('trade-exit').value), lots: Number($('trade-lots').value),
-    sl: $('trade-sl').value ? Number($('trade-sl').value) : null,
-    tp: $('trade-tp').value ? Number($('trade-tp').value) : null,
-    result: Number($('trade-result').value), strategy: $('trade-strategy').value.trim(),
-    notes: $('trade-notes').value.trim()
-  };
-  if (!trade.date || !Number.isFinite(trade.result) || trade.entry < 0 || trade.exit < 0 || trade.lots <= 0) {
-    formStatus.textContent = 'Check the date, prices, lot size and result.'; return;
-  }
-  if (existing) trades = trades.map(t => t.id === id ? trade : t); else trades.push(trade);
-  if (persistTrades()) {
-    tradeForm.reset(); $('trade-id').value = ''; $('trade-lots').value = '0.01';
-    $('trade-date').value = trade.date; $('trade-submit').textContent = 'Save Trade';
-    $('trade-cancel').hidden = true; formStatus.textContent = existing ? 'Trade updated.' : 'Trade saved on this device.';
-    renderJournal();
-  }
-});
-$('trade-cancel')?.addEventListener('click', () => {
-  tradeForm.reset(); $('trade-id').value = ''; $('trade-lots').value = '0.01';
-  $('trade-date').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  $('trade-submit').textContent = 'Save Trade'; $('trade-cancel').hidden = true; formStatus.textContent = '';
-});
-$('journal-table-body')?.addEventListener('click', event => {
-  const editBtn = event.target.closest('[data-edit]'), deleteBtn = event.target.closest('[data-delete]');
-  if (editBtn) {
-    const t = trades.find(item => item.id === editBtn.dataset.edit); if (!t) return;
-    $('trade-id').value=t.id; $('trade-date').value=t.date; $('trade-instrument').value=t.instrument;
-    $('trade-direction').value=t.direction; $('trade-entry').value=t.entry; $('trade-exit').value=t.exit;
-    $('trade-lots').value=t.lots; $('trade-sl').value=t.sl ?? ''; $('trade-tp').value=t.tp ?? '';
-    $('trade-result').value=t.result; $('trade-strategy').value=t.strategy; $('trade-notes').value=t.notes;
-    $('trade-submit').textContent='Update Trade'; $('trade-cancel').hidden=false;
-    tradeForm.scrollIntoView({behavior:'smooth',block:'start'});
-  }
-  if (deleteBtn) {
-    const t = trades.find(item => item.id === deleteBtn.dataset.delete);
-    if (t && confirm(`Delete the ${t.instrument} trade from ${t.date}? This cannot be undone.`)) {
-      trades = trades.filter(item => item.id !== t.id); persistTrades(); renderJournal();
-    }
-  }
-});
-['filter-from','filter-to','filter-instrument','filter-result'].forEach(id => $(id)?.addEventListener('change', renderJournal));
-$('clear-filters')?.addEventListener('click', () => {
-  ['filter-from','filter-to','filter-instrument','filter-result'].forEach(id => { if ($(id)) $(id).value=''; });
-  renderJournal();
-});
+// Contact form: FormSubmit recipient verification is required before reliable delivery.
+const contactForm=$('contact-form');contactForm?.addEventListener('submit',async event=>{event.preventDefault();const status=$('contact-status'),button=$('contact-submit'),name=$('contact-name').value.trim(),email=$('contact-email').value.trim(),subject=$('contact-subject').value.trim(),message=$('contact-message').value.trim();if(!name||!email||!subject||!message){status.textContent='Please complete all fields.';return;}status.textContent='Sending your message…';button.disabled=true;try{const res=await fetch('https://formsubmit.co/ajax/dollaraddict254@gmail.com',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({name,email,subject,message,_subject:`DOLLARADDICT website: ${subject}`,_template:'table',_captcha:'true'})});const result=await res.json();if(!res.ok||String(result.success).toLowerCase()!=='true')throw new Error(result.message||'Email service did not accept the message.');status.textContent='Message submitted. If this is your first message, verify the recipient address from FormSubmit’s email.';contactForm.reset();}catch{const body=`Name: ${name}\nReply email: ${email}\n\n${message}`;status.textContent='Direct sending failed; opening an email draft instead.';location.href=`mailto:dollaraddict254@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;}finally{button.disabled=false;}});
 
-function drawChart(canvasId, values, labels, options={}) {
-  const el = $(canvasId); if (!el) return;
-  const rect = el.getBoundingClientRect(), width = Math.max(280, rect.width || 500), height = 220, dpr = window.devicePixelRatio || 1;
-  el.width = width*dpr; el.height=height*dpr; el.style.height=height+'px';
-  const c = el.getContext('2d'); c.scale(dpr,dpr); c.clearRect(0,0,width,height);
-  const pad={l:42,r:12,t:18,b:32}, plotW=width-pad.l-pad.r, plotH=height-pad.t-pad.b;
-  const nums=values.length ? values : [0], min=Math.min(0,...nums), max=Math.max(0,...nums), range=(max-min)||1;
-  c.font='11px sans-serif'; c.strokeStyle='#293342'; c.fillStyle='#9ca9bb'; c.lineWidth=1;
-  for(let i=0;i<5;i++){const y=pad.t+plotH*i/4;c.beginPath();c.moveTo(pad.l,y);c.lineTo(width-pad.r,y);c.stroke();c.fillText(fmt(max-range*i/4),2,y+4);}
-  if (!values.length) { c.fillText('Record trades to display performance',pad.l+8,pad.t+plotH/2); return; }
-  const xAt=i=>pad.l+(values.length===1?plotW/2:i*plotW/(values.length-1));
-  const yAt=v=>pad.t+(max-v)/range*plotH;
-  c.strokeStyle='#00d7ff'; c.lineWidth=2; c.beginPath();
-  values.forEach((v,i)=>i===0?c.moveTo(xAt(i),yAt(v)):c.lineTo(xAt(i),yAt(v))); c.stroke();
-  c.fillStyle='#d7e4f5';
-  [0,Math.floor((labels.length-1)/2),labels.length-1].filter((v,i,a)=>a.indexOf(v)===i).forEach(i=>{
-    const label=String(labels[i]||'').slice(5); c.fillText(label,xAt(i)-14,height-9);
-  });
-}
-function renderStatistics(rows) {
-  const total=rows.length, wins=rows.filter(t=>Number(t.result)>0).length, losses=rows.filter(t=>Number(t.result)<0).length;
-  const net=rows.reduce((s,t)=>s+Number(t.result||0),0), avg=total?net/total:0;
-  const grossWin=rows.reduce((s,t)=>s+Math.max(0,Number(t.result||0)),0);
-  const grossLoss=Math.abs(rows.reduce((s,t)=>s+Math.min(0,Number(t.result||0)),0));
-  $('stat-total').textContent=total; $('stat-wins-losses').textContent=`${wins} / ${losses}`;
-  $('stat-win-rate').textContent=(total?wins/total*100:0).toFixed(1)+'%';
-  $('stat-net').textContent=fmt(net); $('stat-net').className=net>0?'trend-up':net<0?'trend-down':'';
-  $('stat-average').textContent=fmt(avg); $('stat-profit-factor').textContent=grossLoss? (grossWin/grossLoss).toFixed(2):(grossWin?'∞':'—');
-  let cumulative=0; const equity=rows.map(t=>cumulative+=Number(t.result||0));
-  drawChart('equity-chart',equity,rows.map(t=>t.date));
-  const dailyMap={}; rows.forEach(t=>dailyMap[t.date]=(dailyMap[t.date]||0)+Number(t.result||0));
-  const daily=Object.keys(dailyMap).sort().map(date=>({date,result:dailyMap[date]}));
-  drawChart('daily-chart',daily.map(d=>d.result),daily.map(d=>d.date));
-  const groups=new Map();
-  rows.forEach(t=>[['Instrument',t.instrument||'Other'],['Strategy',t.strategy||'Unspecified']].forEach(([type,key])=>{
-    const group=type+': '+key; if(!groups.has(group)) groups.set(group,{name:group,count:0,wins:0,net:0});
-    const g=groups.get(group);g.count++;g.wins+=Number(t.result)>0?1:0;g.net+=Number(t.result||0);
-  }));
-  $('breakdown-table-body').innerHTML=[...groups.values()].map(g=>`<tr><td>${escapeHTML(g.name)}</td><td>${g.count}</td><td>${g.wins}</td><td class="${g.net>0?'trend-up':g.net<0?'trend-down':''}">${fmt(g.net)}</td><td>${(g.wins/g.count*100).toFixed(1)}%</td></tr>`).join('');
-}
-renderJournal();
-window.addEventListener('resize', () => renderStatistics(getFilteredTrades()));
-
-// Contact form. FormSubmit needs a one-time recipient verification on first use.
-// If service fails, create a pre-addressed draft so the visitor can still contact the owner.
-const contactForm = $('contact-form');
-contactForm?.addEventListener('submit', async event => {
-  event.preventDefault();
-  const status = $('contact-status'), button = $('contact-submit');
-  const name=$('contact-name').value.trim(), email=$('contact-email').value.trim();
-  const subject=$('contact-subject').value.trim(), message=$('contact-message').value.trim();
-  if (!name || !email || !subject || !message) { status.textContent='Please complete all fields.'; return; }
-  status.textContent='Sending your message…'; button.disabled=true;
-  const payload={name,email,subject,message,_subject:`DollarAddict website: ${subject}`,_template:'table',_captcha:'true'};
-  try {
-    const response=await fetch('https://formsubmit.co/ajax/dollaraddict254@gmail.com',{
-      method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)
-    });
-    const result=await response.json();
-    if (!response.ok || String(result.success).toLowerCase()!=='true') throw new Error(result.message || 'Email service did not accept the message.');
-    status.textContent='Message submitted. If this is the first submission, the site owner may need to verify the receiving address.';
-    contactForm.reset();
-  } catch (error) {
-    const body=`Name: ${name}\nReply email: ${email}\n\n${message}`;
-    const mailto=`mailto:dollaraddict254@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    status.textContent='Direct sending is not available right now. Opening an email draft instead.';
-    window.location.href=mailto;
-  } finally { button.disabled=false; }
-});
+// Checkout UI: no fake success. Backend must be configured and return a real checkout response.
+const API_BASE=(window.DA_CONFIG&&window.DA_CONFIG.apiBase)||'';const checkoutForm=$('checkout-form');let checkoutPoll=null;
+function showCheckoutMessage(text){const el=$('checkout-status');if(el)el.textContent=text;}
+checkoutForm?.addEventListener('submit',async event=>{event.preventDefault();const button=$('checkout-submit'),phone=$('buyer-phone').value.trim(),name=$('buyer-name').value.trim();if(!API_BASE){showCheckoutMessage('M-PESA checkout is not connected yet. Follow backend/README.md to deploy the secure Worker and set DA_CONFIG.apiBase. No payment has been requested.');return;}button.disabled=true;showCheckoutMessage('Creating secure payment request…');$('license-result').hidden=true;try{const response=await fetch(`${API_BASE.replace(/\/$/,'')}/api/checkout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,name})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Could not start payment.');if(!data.checkoutToken||!data.orderId)throw new Error('Backend response was incomplete.');sessionStorage.setItem('da_checkout_token',data.checkoutToken);sessionStorage.setItem('da_order_id',data.orderId);showCheckoutMessage(data.customerMessage||'Check your phone and enter your M-PESA PIN only in the official STK prompt. Waiting for confirmation…');pollCheckout(data.orderId,data.checkoutToken);}catch(err){showCheckoutMessage(err.message||'Payment request failed. Please try again later.');}finally{button.disabled=false;}});
+async function pollCheckout(orderId,token){if(checkoutPoll)clearInterval(checkoutPoll);let attempts=0,finished=false;const check=async()=>{if(finished)return;attempts++;try{const r=await fetch(`${API_BASE.replace(/\/$/,'')}/api/order-status?orderId=${encodeURIComponent(orderId)}`,{headers:{'Authorization':`Bearer ${token}`}});const d=await r.json();if(!r.ok)throw new Error(d.error||'Status check failed.');if(d.status==='paid'&&d.licenseKey){clearInterval(checkoutPoll);checkoutPoll=null;finished=true;showCheckoutMessage('Payment confirmed by the backend. Your license is ready.');const out=$('license-result');out.hidden=false;out.className='license-panel';out.innerHTML=`<strong>Payment confirmed</strong><p>Your license key:</p><p><code>${escapeHTML(d.licenseKey)}</code></p><p><a class="btn btn-blue" href="${API_BASE.replace(/\/$/,'')}/api/download?license=${encodeURIComponent(d.licenseKey)}">Download CRT Gold EA</a></p><p class="small-note">Keep the license private. This key is for access control, not a guarantee that the EA cannot be copied.</p>`;}else if(d.status==='failed'||d.status==='cancelled'){clearInterval(checkoutPoll);checkoutPoll=null;finished=true;showCheckoutMessage(d.message||'Payment was not completed. You can start a new checkout.');}else if(attempts>=40){clearInterval(checkoutPoll);checkoutPoll=null;finished=true;showCheckoutMessage('Still awaiting payment confirmation. Do not pay again immediately. Refresh this page later or contact support with your checkout reference.');}}catch(e){if(attempts>=40){clearInterval(checkoutPoll);checkoutPoll=null;finished=true;showCheckoutMessage('Unable to confirm payment status right now. Do not make another payment until you check with support.');}}};await check();if(!finished&&!checkoutPoll)checkoutPoll=setInterval(check,5000);}

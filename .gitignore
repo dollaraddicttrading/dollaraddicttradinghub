@@ -1,0 +1,8 @@
+# Never commit secrets, private robot binaries, or local Cloudflare IDs
+backend/.dev.vars
+backend/wrangler.toml
+*.ex5
+*.mq5
+.env
+.env.*
+!.env.example
