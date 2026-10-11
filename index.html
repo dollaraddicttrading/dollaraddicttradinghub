@@ -28,6 +28,9 @@
             <a href="#home" class="logo"><i class="fas fa-chart-line"></i> DOLLAR<span class="highlight">ADDICT</span></a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
+                <li><a href="#dashboard">Live Charts</a></li>
+                <li><a href="#journal">Journal</a></li>
+                <li><a href="#statistics">Statistics</a></li>
                 <li><a href="#suite">The DA Suite</a></li> <!-- NEW Menu link -->
                 <li><a href="#calendar">Calendar</a></li> <!-- NEW Menu link -->
                 <li><a href="#clocks">Sessions</a></li>
@@ -50,7 +53,7 @@
                 <a href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer" class="btn btn-blue">
                     <i class="fas fa-external-link-alt"></i> Open TradingView
                 </a>
-                <a href="mailto:contact dollaraddict254@gmail.com" class="btn btn-red">
+                <a href="mailto:dollaraddict254@gmail.com?subject=DollarAddict%20Website%20Inquiry" class="btn btn-red">
                     <i class="fas fa-envelope"></i> Email Us Directly
                 </a>
             </div>
@@ -144,6 +147,116 @@
         </div>
     </section>
 
+
+    <!-- DollarAddict live chart dashboard -->
+    <section id="dashboard" class="trading-dashboard-section">
+      <div class="container">
+        <h2>Live Trading Dashboard</h2>
+        <p class="section-subtitle">TradingView market charts. Quotes require an internet connection.</p>
+        <div class="dashboard-controls">
+          <label for="chart-symbol">Instrument</label>
+          <select id="chart-symbol">
+            <option value="OANDA:XAUUSD">Gold (XAUUSD)</option>
+            <option value="FX:EURUSD">EUR/USD</option>
+            <option value="FX:GBPUSD">GBP/USD</option>
+            <option value="COINBASE:BTCUSD">BTC/USD</option>
+          </select>
+          <label for="chart-timeframe">Timeframe</label>
+          <select id="chart-timeframe">
+            <option value="15">15 minutes</option>
+            <option value="60" selected>1 hour</option>
+            <option value="240">4 hours</option>
+            <option value="D">1 day</option>
+            <option value="W">1 week</option>
+          </select>
+        </div>
+        <div class="chart-frame-wrap">
+          <iframe id="tradingview-chart" title="TradingView market chart"
+            src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=OANDA%3AXAUUSD&interval=60&hidesidetoolbar=0&symboledit=1&saveimage=0&toolbarbg=0b0b0b&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&hideideas=1&studies=%5B%5D"
+            loading="lazy" referrerpolicy="origin" allowfullscreen></iframe>
+        </div>
+        <p class="small-note">Charts are provided by TradingView. Market data may be delayed depending on the provider.</p>
+      </div>
+    </section>
+
+    <!-- Trading journal: stored in this browser/device -->
+    <section id="journal" class="journal-section">
+      <div class="container">
+        <h2>Trading Journal</h2>
+        <p class="section-subtitle">Record your own trades. Entries are saved in this browser on this device.</p>
+        <form id="trade-form" class="trade-form">
+          <input type="hidden" id="trade-id">
+          <label>Instrument
+            <select id="trade-instrument" required>
+              <option value="XAUUSD">Gold (XAUUSD)</option><option value="EUR/USD">EUR/USD</option>
+              <option value="GBP/USD">GBP/USD</option><option value="BTC/USD">BTC/USD</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>Trade date <input id="trade-date" type="date" required></label>
+          <label>Direction
+            <select id="trade-direction"><option>Buy</option><option>Sell</option></select>
+          </label>
+          <label>Entry price <input id="trade-entry" type="number" step="any" min="0" required></label>
+          <label>Exit price <input id="trade-exit" type="number" step="any" min="0" required></label>
+          <label>Lot size <input id="trade-lots" type="number" step="any" min="0" value="0.01" required></label>
+          <label>Stop loss <input id="trade-sl" type="number" step="any" min="0"></label>
+          <label>Take profit <input id="trade-tp" type="number" step="any" min="0"></label>
+          <label>Result (account currency)
+            <input id="trade-result" type="number" step="any" placeholder="e.g. 25.50" required>
+          </label>
+          <label>Strategy <input id="trade-strategy" type="text" maxlength="100" placeholder="e.g. Breakout"></label>
+          <label class="wide-field">Notes <textarea id="trade-notes" rows="2" maxlength="1500" placeholder="Setup, lessons, mistakes…"></textarea></label>
+          <div class="wide-field form-actions">
+            <button type="submit" class="btn btn-blue" id="trade-submit">Save Trade</button>
+            <button type="button" class="btn btn-secondary" id="trade-cancel" hidden>Cancel Edit</button>
+            <span id="trade-form-status" role="status" aria-live="polite"></span>
+          </div>
+        </form>
+        <div class="journal-filters">
+          <label>From <input type="date" id="filter-from"></label>
+          <label>To <input type="date" id="filter-to"></label>
+          <label>Instrument
+            <select id="filter-instrument"><option value="">All instruments</option><option>XAUUSD</option><option>EUR/USD</option><option>GBP/USD</option><option>BTC/USD</option><option>Other</option></select>
+          </label>
+          <label>Result <select id="filter-result"><option value="">All results</option><option value="win">Wins</option><option value="loss">Losses</option><option value="breakeven">Breakeven</option></select></label>
+          <button type="button" class="btn btn-secondary" id="clear-filters">Clear filters</button>
+        </div>
+        <div class="table-container">
+          <table class="market-table journal-table">
+            <thead><tr><th>Date</th><th>Instrument</th><th>Side</th><th>Entry</th><th>Exit</th><th>Lots</th><th>Result</th><th>Strategy / Notes</th><th>Actions</th></tr></thead>
+            <tbody id="journal-table-body"></tbody>
+          </table>
+        </div>
+        <p id="journal-empty" class="small-note">No trades recorded yet. Add a trade above to begin.</p>
+        <p class="small-note">Note: results are the values you enter; the app does not connect to your broker or calculate instrument-specific pip value. Local entries do not automatically sync between devices.</p>
+      </div>
+    </section>
+
+    <!-- Statistics derived only from recorded journal trades -->
+    <section id="statistics" class="statistics-section">
+      <div class="container">
+        <h2>Trading Statistics</h2>
+        <p class="section-subtitle">Calculated from your saved journal trades and current filters.</p>
+        <div class="stats-grid">
+          <article class="stat-card"><span>Total trades</span><strong id="stat-total">0</strong></article>
+          <article class="stat-card"><span>Wins / Losses</span><strong id="stat-wins-losses">0 / 0</strong></article>
+          <article class="stat-card"><span>Win rate</span><strong id="stat-win-rate">0%</strong></article>
+          <article class="stat-card"><span>Net profit / loss</span><strong id="stat-net">0.00</strong></article>
+          <article class="stat-card"><span>Average result</span><strong id="stat-average">0.00</strong></article>
+          <article class="stat-card"><span>Profit factor</span><strong id="stat-profit-factor">—</strong></article>
+        </div>
+        <div class="stats-chart-grid">
+          <article class="stat-chart-card"><h3>Equity curve (cumulative result)</h3><canvas id="equity-chart" height="220" aria-label="Equity curve"></canvas></article>
+          <article class="stat-chart-card"><h3>Daily performance</h3><canvas id="daily-chart" height="220" aria-label="Daily performance chart"></canvas></article>
+        </div>
+        <div class="table-container breakdown-wrap">
+          <h3>Performance by instrument and strategy</h3>
+          <table class="market-table"><thead><tr><th>Group</th><th>Trades</th><th>Wins</th><th>Net result</th><th>Win rate</th></tr></thead><tbody id="breakdown-table-body"></tbody></table>
+        </div>
+      </div>
+    </section>
+
     <!-- *** NEW: TradingView Economic Calendar *** -->
     <section id="calendar" class="calendar-section">
         <div class="container">
@@ -228,7 +341,7 @@
                 <i class="fas fa-paper-plane tool-icon"></i>
                 <h3>Direct Support</h3>
                 <p>Need trading strategies? Reach out directly.</p>
-                <a href="mailto:contact dollaraddict254@gmail.com" class="btn btn-red">Email Support</a>
+                <a href="mailto:dollaraddict254@gmail.com?subject=DollarAddict%20Website%20Inquiry" class="btn btn-red">Email Support</a>
             </div>
         </div>
     </section>
@@ -238,14 +351,17 @@
         <h2>Get in Touch</h2>
         <p class="section-subtitle">Send an email directly or drop us a quick note</p>
         <div class="contact-box">
-            <a href="mailto:contact dollaraddict254@gmail.com" class="email-display-btn">
+            <a href="mailto:dollaraddict254@gmail.com?subject=DollarAddict%20Website%20Inquiry" class="email-display-btn">
                 <i class="fas fa-envelope-open-text"></i> contact dollaraddict254@gmail.com
             </a>
             <form id="contact-form">
-                <input type="text" placeholder="Your Name" required>
-                <input type="email" placeholder="Your Email" required>
-                <textarea placeholder="Your Message or Inquiry" rows="4" required></textarea>
-                <button type="submit" class="btn btn-blue">Send Inquiry</button>
+                <input type="text" id="contact-name" name="name" placeholder="Your Name" maxlength="100" required>
+                <input type="email" id="contact-email" name="email" placeholder="Your Email" maxlength="254" required>
+                <input type="text" id="contact-subject" name="subject" placeholder="Subject" maxlength="150" required>
+                <textarea id="contact-message" name="message" placeholder="Your Message or Inquiry" rows="4" maxlength="5000" required></textarea>
+                <button type="submit" class="btn btn-blue" id="contact-submit">Send Inquiry</button>
+                <p id="contact-status" role="status" aria-live="polite" class="form-status"></p>
+                <p class="small-note">Messages are sent using our configured email form service. The first submission may require the site owner to verify the receiving email address.</p>
             </form>
         </div>
     </section>
@@ -254,7 +370,7 @@
     <footer>
         <p>&copy; 2026 DOLLARADDICT. Built for professional traders.</p>
         <div class="social-icons">
-            <a href="mailto:contact dollaraddict254@gmail.com" aria-label="Email DOLLARADDICT"><i class="fas fa-envelope"></i></a>
+            <a href="mailto:dollaraddict254@gmail.com?subject=DollarAddict%20Website%20Inquiry" aria-label="Email DOLLARADDICT"><i class="fas fa-envelope"></i></a>
             <a href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer" aria-label="TradingView"><i class="fas fa-chart-pie"></i></a>
         </div>
     </footer>
@@ -262,62 +378,6 @@
     <!-- Existing website functionality -->
     <script src="script.js"></script>
 
-    <!-- *** PILLAR 2 & 3: Consolidated JavaScript for PWA *** -->
-    <script>
-        // -- CONSOLIDATED PWA & SERVICE WORKER LOGIC --
-
-        // 1. Service Worker Registration (Req. for PWA)
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                // Point to your enhanced sw.js (Pillar 3)
-                navigator.serviceWorker.register("./sw.js")
-                    .then(registration => {
-                        console.log("DOLLARADDICT Service Worker registered (offline mode active):", registration.scope);
-                    })
-                    .catch(error => {
-                        console.error("DOLLARADDICT Service Worker registration failed:", error);
-                    });
-            });
-        }
-
-        // 2. Custom Install Prompt Logic (Pillar 2)
-        let deferredPrompt;
-        const installPanel = document.getElementById('pwa-install-container');
-        const installBtn = document.getElementById('pwa-install-btn');
-
-        // A. Listen for the native install prompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent older versions of Chrome from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
-            deferredPrompt = e;
-            // B. Reveal the custom UI (the animated showcase)
-            installPanel.style.display = 'block';
-            console.log("PWA Installation available. Revealing custom prompt.");
-        });
-
-        // C. Handle the interaction with your custom button
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                // Show the native browser install prompt
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User accepted the DA app install prompt: ${outcome}`);
-                // Clear the deferred prompt (it can only be used once)
-                deferredPrompt = null;
-                // D. Hide your custom UI
-                installPanel.style.display = 'none';
-            }
-        });
-
-        // Optional: Listen for successful installation
-        window.addEventListener('appinstalled', (evt) => {
-            console.log('DOLLARADDICT app was successfully installed!');
-            installPanel.style.display = 'none';
-        });
-
-    </script>
 
 </body>
 </html>

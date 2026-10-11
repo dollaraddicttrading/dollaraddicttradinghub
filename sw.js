@@ -1,100 +1,32 @@
-/* =========================================
-   DOLLARADDICT Enhanced Service Worker (sw.js)
-   Integrated for: Speed, Offline Caching, and PWA Prompts.
-   Strategy: Stale-While-Revalidate (Fast & Up-to-Date)
-   ========================================= */
-
-// 1. Core Configuration (Req. for Pillar 3)
-const CACHE_NAME = 'dollaraddict-trading-v1.1'; // Bump version if critical assets change
-
-// *** PILLAR 3: ESSENTIAL ASSET LIST (PWA Foundation) ***
-// We must include all files the website needs for basic offline function.
-const APP_FILES = [
-    './',
-    './index.html',
-    './style.css',               // Essential for Tiktok/Suite look
-    './script.js',              // Essential for PWA/Clock/Suite function
-    './manifest.json',           // Required for install prompt
-    './icons/icon-192.png',      // Req. for Pillar 1/2
-    './icons/icon-512.png',      // Req. for installation
-
-    // Dynamic fonts are cached dynamically instead of pre-caching.
-    // 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
-
-    // ... As you build ./tools/bots.html etc., add them here ...
-];
-
-/* =========================================
-   Installation Lifecycle (Caching Static Assets)
-   ========================================= */
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('DOLLARADDICT PWA: Precaching critical static assets...');
-                // Uses addAll to cache all critical files during installation
-                return cache.addAll(APP_FILES);
-            })
-    );
-    
-    // Forces the waiting service worker to become active immediately (existing)
-    self.skipWaiting();
+/* DollarAddict service worker: safe core caching and network-first HTML updates. */
+const CACHE_NAME = 'dollaraddict-app-v2';
+const CORE_FILES = ['./', './index.html', './style.css', './script.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_FILES)).catch(err => {
+    console.warn('Some core assets could not be cached:', err);
+  }));
+  self.skipWaiting();
 });
-
-/* =========================================
-   Activation Lifecycle (Cache Cleanup)
-   ========================================= */
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) => {
-            return Promise.all(
-                // Filter and delete old caches that don't match CACHE_NAME
-                keys.filter(key => key !== CACHE_NAME)
-                    .map(key => {
-                        console.log('DOLLARADDICT PWA: Clearing old cache: ', key);
-                        return caches.delete(key);
-                    })
-            );
-        })
-    );
-    
-    // Ensures all open tabs/clients are immediately controlled by this worker (existing)
-    self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))));
+  self.clients.claim();
 });
-
-/* =========================================
-   Fetch Lifecycle (NEW Strategy: Stale-While-Revalidate)
-   ========================================= */
-self.addEventListener('fetch', (event) => {
-    // Only intercept standard GET requests (existing)
-    if (event.request.method !== 'GET') return;
-
-    event.respondWith(
-        caches.match(event.request)
-            .then((cachedResponse) => {
-                // A. Instant response: If found in cache, serve it immediately (making app FAST)
-                const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    // B. Background check: We must have a valid response to update the cache
-                    if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-                        // If network fails (e.g., truly offline), return the network object as truth
-                        return networkResponse; 
-                    }
-                    
-                    // C. Background update: Clone the network response and update the cache for NEXT time
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, networkResponse.clone());
-                    });
-                    
-                    // Return the network response as the ultimate source of truth
-                    return networkResponse;
-                }).catch(() => {
-                    // D. Network Failure: If fetch() completely fails (e.g. no connection)
-                    // We already served the cachedResponse, so nothing else is needed here
-                });
-
-                // The return value determines what is shown. 
-                // cachedResponse will be served immediately, and fetchPromise handles the background freshness check.
-                return cachedResponse || fetchPromise;
-            })
-    );
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request).then(response => {
+      if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put('./index.html', response.clone()));
+      return response;
+    }).catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html'))));
+    return;
+  }
+  event.respondWith(caches.match(event.request).then(cached => {
+    const network = fetch(event.request).then(response => {
+      if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+      return response;
+    });
+    return cached || network.catch(() => new Response('Offline', {status:503, headers:{'Content-Type':'text/plain'}}));
+  }));
 });
