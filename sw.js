@@ -1,5 +1,5 @@
 /* DOLLARADDICT service worker: core cache and network-first navigation updates. */
-const CACHE_NAME='dollaraddict-app-v4';
+const CACHE_NAME='dollaraddict-app-v5-gold-black-blue';
 const CORE_FILES=['./','./index.html','./style.css','./script.js','./manifest.json','./icons/icon-192.png','./icons/icon-512.png','./tools/bots.html','./tools/strategies.html','./tools/indicators.html','./tools/index.html','./tools/tools.css','./tools/tools.js'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE_FILES)).catch(err=>console.warn('Some assets were not cached:',err)));self.skipWaiting();});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))));self.clients.claim();});

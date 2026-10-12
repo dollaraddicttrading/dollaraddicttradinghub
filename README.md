@@ -42,3 +42,7 @@ The Trading Suite's local reminders and journal data stay in the current browser
 - The icons are now located in `icons/` inside the project root so the existing manifest and favicon paths resolve when the contents of `DOLLARADDICT-UPDATED/` are published as the site root.
 - The M-PESA Worker remains a starter and is not live until the owner configures Daraja credentials, deploys it, sets the allowed origin and uploads the compiled EA to private storage. Do not commit secrets or the compiled `.ex5` file to GitHub.
 - Test the PWA, all local tools, and payment flow on the deployed HTTPS site before announcing the upgrade.
+
+
+## Visual theme update
+The interface uses a premium dark palette with balanced metallic-gold accents, black surfaces, and blue highlights across the main website and Trading Suite. The PWA theme color and cache version were updated so installed copies can refresh the styling.
