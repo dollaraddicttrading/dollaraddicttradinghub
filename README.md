@@ -18,3 +18,27 @@ Upload the contents of this folder to the root of your GitHub repository so `ind
 
 ## Important
 The frontend is not connected to a broker. Journal entries remain on the current browser/device. TradingView and FormSubmit need internet access. The payment backend requires separate deployment and configuration; see `backend/README.md`. This ZIP does not include a compiled robot binary, real payment credentials, or an already activated Safaricom merchant setup. No trading outcome is guaranteed.
+
+## New DA Trading Suite
+
+Open `tools/index.html` to use the Trading Suite. The page is linked from the main navigation and DA Suite section and is included in the service-worker cache for installable-app navigation. It includes:
+
+- Risk and lot-size estimator (requires broker-specific price-step value)
+- Manual CRT sweep/reclaim rule checker
+- Insights from the existing `dollaraddict.trades.v2` local journal
+- Kenya/Tokyo/London/New York clocks and configurable indicative session windows
+- Economic calendar link and locally saved event plans (not push notifications)
+- Hypothetical compounding planner
+- Provider chart watchlist (no fabricated quotes)
+- Local educational trading assistant (not a live AI model)
+- Browser-only CSV OHLC CRT-style backtester
+- Educational Academy lessons
+- DA product directory linked to the existing CRT bot checkout
+
+The Trading Suite's local reminders and journal data stay in the current browser and are not synchronized across devices. The assistant is a local educational helper; connect a real AI service only through a secure backend. Live quotes and a live economic calendar require provider data and are linked externally rather than simulated.
+
+### Important before publishing
+
+- The icons are now located in `icons/` inside the project root so the existing manifest and favicon paths resolve when the contents of `DOLLARADDICT-UPDATED/` are published as the site root.
+- The M-PESA Worker remains a starter and is not live until the owner configures Daraja credentials, deploys it, sets the allowed origin and uploads the compiled EA to private storage. Do not commit secrets or the compiled `.ex5` file to GitHub.
+- Test the PWA, all local tools, and payment flow on the deployed HTTPS site before announcing the upgrade.

@@ -1,0 +1,23 @@
+name = "dollaraddict-payments"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+# Copy this file to wrangler.toml and replace IDs with your Cloudflare resource IDs.
+[[d1_databases]]
+binding = "DB"
+database_name = "dollaraddict-payments"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "BOT_BUCKET"
+bucket_name = "dollaraddict-private-bots"
+
+[vars]
+# Use https://sandbox.safaricom.co.ke for Daraja sandbox first.
+DARAJA_BASE_URL = "https://sandbox.safaricom.co.ke"
+DARAJA_TRANSACTION_TYPE = "CustomerPayBillOnline"
+# Comma-separated exact origins, no trailing slash. Example: https://yourname.github.io,https://yourdomain.com
+ALLOWED_ORIGINS = "https://YOUR-GITHUB-USERNAME.github.io"
+# Must be a publicly reachable HTTPS URL for the deployed Worker callback route:
+DARAJA_CALLBACK_URL = "https://YOUR-WORKER-SUBDOMAIN.workers.dev/api/mpesa/callback"
+# DARAJA_SHORTCODE = set as a non-secret variable or Worker secret according to provider setup.
