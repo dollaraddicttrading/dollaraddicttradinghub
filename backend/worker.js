@@ -19,8 +19,10 @@ function normalizeKenyanPhone(value) {
   return null;
 }
 function timestamp() {
-  const d = new Date();
-  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}${String(d.getSeconds()).padStart(2,'0')}`;
+  // Daraja STK passwords use the Kenya local timestamp (EAT, UTC+3).
+  // Cloudflare Workers run in UTC, so shift the instant and format with UTC getters.
+  const d = new Date(Date.now() + 3 * 60 * 60 * 1000);
+  return `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}${String(d.getUTCHours()).padStart(2,'0')}${String(d.getUTCMinutes()).padStart(2,'0')}${String(d.getUTCSeconds()).padStart(2,'0')}`;
 }
 function randomHex(bytes = 24) { const a = new Uint8Array(bytes); crypto.getRandomValues(a); return [...a].map(x => x.toString(16).padStart(2,'0')).join(''); }
 async function sha256(value) { const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)); return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2,'0')).join(''); }
@@ -53,9 +55,14 @@ async function verifyAndGrantPaid(env, orderId, checkoutRequestId) {
   const q = query.data || {};
   if (!query.ok || String(q.ResultCode) !== '0') return false;
   const licenseKey = `DA-${randomHex(4).toUpperCase()}-${randomHex(4).toUpperCase()}-${randomHex(4).toUpperCase()}`;
-  const updated = await env.DB.prepare("UPDATE orders SET status='paid',result_description='Payment independently confirmed by Daraja',license_key=?,updated_at=datetime('now') WHERE order_id=? AND status='pending'").bind(licenseKey,orderId).run();
-  if (updated.meta?.changes) await env.DB.prepare('INSERT OR IGNORE INTO licenses (license_key,order_id,active) VALUES (?,?,1)').bind(licenseKey,orderId).run();
-  return true;
+  // D1 batch keeps the paid transition and license record together. The second
+  // statement reads the key actually stored on the order, making retries safe.
+  await env.DB.batch([
+    env.DB.prepare("UPDATE orders SET status='paid',result_description='Payment independently confirmed by Daraja',license_key=?,updated_at=datetime('now') WHERE order_id=? AND status='pending'").bind(licenseKey,orderId),
+    env.DB.prepare("INSERT OR IGNORE INTO licenses (license_key,order_id,active) SELECT license_key,order_id,1 FROM orders WHERE order_id=? AND status='paid' AND license_key IS NOT NULL").bind(orderId)
+  ]);
+  const confirmed = await env.DB.prepare("SELECT o.status,o.license_key,l.license_key AS registered_license FROM orders o LEFT JOIN licenses l ON l.order_id=o.order_id WHERE o.order_id=?").bind(orderId).first();
+  return Boolean(confirmed && confirmed.status === 'paid' && confirmed.license_key && confirmed.registered_license === confirmed.license_key);
 }
 async function handleCallback(request, env) {
   const body = await request.json().catch(()=>null);

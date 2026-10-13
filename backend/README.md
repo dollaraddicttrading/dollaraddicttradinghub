@@ -12,6 +12,13 @@ This folder is a **backend starter**. It is not live until you deploy it, config
 
 A license/download gate is a deterrent, not absolute DRM. An EA that a buyer downloads can potentially be copied. This starter does not bind licenses to an MT5 account number and does not guarantee that redistribution is impossible.
 
+
+## Before configuring payments
+
+**A personal M-PESA phone number is not a Daraja merchant shortcode.** The owner's contact number (+254 743 559 970) can be used for support, but STK Push requires a Daraja-supported PayBill/Till/business shortcode and matching passkey/credentials for the selected environment. Do not put the owner's phone number into `DARAJA_SHORTCODE` unless Safaricom has explicitly issued that exact value as the supported shortcode for your merchant setup.
+
+The Worker formats STK password timestamps in Kenya time (EAT, UTC+3), rather than relying on the Cloudflare runtime's UTC timezone. Paid status and the license record are written with a D1 batch and rechecked before the API reports access as granted.
+
 ## Prerequisites
 
 - Cloudflare account with Workers, D1 and R2 available.
